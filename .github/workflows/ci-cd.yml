@@ -187,12 +187,20 @@ jobs:
         with:
           lfs: true
 
+      # ── Compute lowercase image name (OCI registries require lowercase) ──
+      - name: Prepare image metadata
+        id: prep
+        run: |
+          IMAGE_LC=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "image=${IMAGE_LC}" >> $GITHUB_OUTPUT
+          echo "short_sha=$(echo ${{ github.sha }} | head -c 7)" >> $GITHUB_OUTPUT
+
       # ── Build metadata ────────────────────────────────────────────────────
       - name: Docker meta (tags & labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ steps.prep.outputs.image }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -242,7 +250,7 @@ jobs:
       - name: Trivy – Container vulnerability scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          image-ref: ${{ steps.prep.outputs.image }}:sha-${{ steps.prep.outputs.short_sha }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
