@@ -33,17 +33,30 @@ OPTIMAL_THRESHOLD = 0.64
 
 
 # 3. Define the Strict Data Contract (Pydantic)
-# This mirrors the exact raw columns your dataset had before engineering.
+# This mirrors the exact raw columns the model was trained on.
 class CustomerPayload(BaseModel):
     customerID: str
+    gender: str
+    SeniorCitizen: int = Field(ge=0, le=1, description="1 if senior citizen, else 0")
+    Partner: str
+    Dependents: str
     tenure: int = Field(ge=0, description="Months the customer has stayed")
+    PhoneService: str
+    MultipleLines: str
+    InternetService: str
+    OnlineSecurity: str
+    OnlineBackup: str
+    DeviceProtection: str
+    TechSupport: str
+    StreamingTV: str
+    StreamingMovies: str
+    Contract: str
+    PaperlessBilling: str
+    PaymentMethod: str
     MonthlyCharges: float = Field(ge=0)
     TotalCharges: str = Field(
         description="Often comes in as a string with blank spaces"
     )
-    Contract: str
-    PaymentMethod: str
-    # Add any other raw columns your model requires here
 
 
 # 4. The Exact Feature Engineering Function from Training
@@ -52,7 +65,7 @@ def engineer_churn_features(df: pd.DataFrame) -> pd.DataFrame:
     df_feat["TotalCharges"] = pd.to_numeric(
         df_feat["TotalCharges"], errors="coerce"
     ).fillna(0.0)
-    df_feat["Plan_Tier"] = np.where(df_feat["MonthlyCharges"] > 35, "Premium", "Basic")
+    df_feat["Plan_tier"] = np.where(df_feat["MonthlyCharges"] > 35, "Premium", "Basic")
     df_feat["Discretionary_Spend"] = (df_feat["MonthlyCharges"] - 20.0).clip(lower=0)
 
     bins = [-1, 6, 60, 200]
@@ -82,6 +95,35 @@ async def predict_churn(customer: CustomerPayload):
         # Drop identifiers to match the training shape
         if "customerID" in df_processed.columns:
             df_processed = df_processed.drop(columns=["customerID"])
+
+        # Reorder columns to match model's expected feature order
+        expected_features = [
+            "gender",
+            "SeniorCitizen",
+            "Partner",
+            "Dependents",
+            "tenure",
+            "PhoneService",
+            "MultipleLines",
+            "InternetService",
+            "OnlineSecurity",
+            "OnlineBackup",
+            "DeviceProtection",
+            "TechSupport",
+            "StreamingTV",
+            "StreamingMovies",
+            "Contract",
+            "PaperlessBilling",
+            "PaymentMethod",
+            "MonthlyCharges",
+            "TotalCharges",
+            "Plan_tier",
+            "Discretionary_Spend",
+            "Customer_Lifecycle",
+            "Is_New_Customer",
+            "Implied_Total_Diff",
+        ]
+        df_processed = df_processed[expected_features]
 
         model = ml_models.get("cat_clf")
 

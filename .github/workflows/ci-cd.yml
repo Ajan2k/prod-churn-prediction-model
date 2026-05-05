@@ -305,11 +305,25 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "customerID": "smoke-test-001",
+              "gender": "Male",
+              "SeniorCitizen": 0,
+              "Partner": "Yes",
+              "Dependents": "No",
               "tenure": 12,
-              "MonthlyCharges": 50.0,
-              "TotalCharges": "600.0",
+              "PhoneService": "Yes",
+              "MultipleLines": "No",
+              "InternetService": "Fiber optic",
+              "OnlineSecurity": "No",
+              "OnlineBackup": "Yes",
+              "DeviceProtection": "No",
+              "TechSupport": "No",
+              "StreamingTV": "No",
+              "StreamingMovies": "No",
               "Contract": "Month-to-month",
-              "PaymentMethod": "Electronic check"
+              "PaperlessBilling": "Yes",
+              "PaymentMethod": "Electronic check",
+              "MonthlyCharges": 50.0,
+              "TotalCharges": "600.0"
             }')
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | head -n -1)
