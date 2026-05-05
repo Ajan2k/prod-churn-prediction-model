@@ -1,0 +1,63 @@
+# --- Version control ---
+.git
+.gitignore
+.gitattributes
+
+# --- Python environments (never ship into the image) ---
+.venv
+venv
+env
+.env
+.env.*
+!.env.example
+
+# --- Bytecode & tooling caches ---
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.hypothesis
+.coverage
+htmlcov
+.tox
+.nox
+
+# --- uv / project metadata (image installs from requirements.txt only) ---
+uv.lock
+pyproject.toml
+
+# --- IDE & editor ---
+.vscode
+.idea
+.cursor
+*.swp
+*.swo
+*~
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Local docs & notebooks (delete these lines if you want them in the image) ---
+*.md
+docs/
+notebooks/
+*.ipynb
+
+# --- Tests (not needed at runtime for this API) ---
+tests/
+test/
+*_test.py
+test_*.py
+
+# --- Docker / compose (keeps build context small; does not stop Docker from using your Dockerfile) ---
+Dockerfile*
+docker-compose*.yml
+compose*.yml
+.dockerignore
+
+catboost_info/
